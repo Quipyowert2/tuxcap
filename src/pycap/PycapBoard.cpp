@@ -117,18 +117,20 @@ void PycapBoard::UpdateF(float delta)
     // Checked on entering incase a non-update function has set it
     if (pExitGame) {
         PyObject* pExit = PyObject_CallObject(pExitGame, NULL);
-        if (PyLong_Check(pExit) && PyLong_AsLong(pExit) != 0) {
+        if (pExit) {
+            if (PyLong_Check(pExit) && PyLong_AsLong(pExit) != 0) {
+                // drop the return value
+                Py_DECREF(pExit);
+
+                // exit the program
+                PycapApp::sApp->mShutdown = true;
+
+                // no need to update
+                return;
+            }
             // drop the return value
             Py_DECREF(pExit);
-
-            // exit the program
-            PycapApp::sApp->mShutdown = true;
-
-            // no need to update
-            return;
         }
-        // drop the return value
-        Py_DECREF(pExit);
     }
 
     // Python update hook
@@ -146,18 +148,20 @@ void PycapBoard::UpdateF(float delta)
     // Checked on exiting updatef incase it has set it
     if (pExitGame) {
         PyObject* pExit = PyObject_CallObject(pExitGame, NULL);
-        if (PyLong_Check(pExit) && PyLong_AsLong(pExit) != 0) {
+        if (pExit) {
+            if (PyLong_Check(pExit) && PyLong_AsLong(pExit) != 0) {
+                // drop the return value
+                Py_DECREF(pExit);
+
+                // exit the program
+                PycapApp::sApp->mShutdown = true;
+
+                // no need to update
+                return;
+            }
             // drop the return value
             Py_DECREF(pExit);
-
-            // exit the program
-            PycapApp::sApp->mShutdown = true;
-
-            // no need to update
-            return;
         }
-        // drop the return value
-        Py_DECREF(pExit);
     }
 
     // general error location warning
