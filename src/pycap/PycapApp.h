@@ -124,4 +124,16 @@ private:
 
 }
 
+// RAII wrapper for global interpreter lock
+class GilLocker {
+    public:
+GilLocker() {
+   state = PyGILState_Ensure();
+}
+~GilLocker() {
+    PyGILState_Release(state);
+}
+PyGILState_STATE state;
+};
+
 #endif // __PYCAPAPP_H__
