@@ -30,6 +30,7 @@ using namespace Sexy;
 
 PycapBoard::PycapBoard()
 {
+    GilLocker gil;
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_Exception, "Some kind of python error at start of PycapBoard()");
         PyErr_Print();
@@ -91,6 +92,7 @@ PycapBoard::PycapBoard()
 
 PycapBoard::~PycapBoard()
 {
+    GilLocker gil;
     // call python shutdown function
     PyObject* pFiniFunc = PyDict_GetItemString(PycapApp::sApp->pDict, "fini");
 
@@ -110,6 +112,7 @@ PycapBoard::~PycapBoard()
 
 void PycapBoard::UpdateF(float delta)
 {
+    GilLocker gil;
     // call parent
     Widget::UpdateF(delta);
 
@@ -174,6 +177,7 @@ void PycapBoard::UpdateF(float delta)
 
 void PycapBoard::Draw(Graphics *g)
 {
+    GilLocker gil;
     // exit early if no python draw function
     if (!pDrawFunc)
         return;
@@ -201,6 +205,7 @@ void PycapBoard::Draw(Graphics *g)
 
 void PycapBoard::KeyDown(KeyCode key)
 {
+    GilLocker gil;
     // exit early if no python keydown function
     if (!pKeyDownFunc)
         return;
@@ -226,6 +231,7 @@ void PycapBoard::KeyDown(KeyCode key)
 
 void PycapBoard::KeyUp(KeyCode key)
 {
+    GilLocker gil;
     // exit early if no python keyup function
     if (!pKeyUpFunc)
         return;
@@ -251,6 +257,7 @@ void PycapBoard::KeyUp(KeyCode key)
 
 void PycapBoard::MouseEnter()
 {
+    GilLocker gil;
     // call python function if it exists
     if (pMouseEnterFunc)
         PyObject_CallObject(pMouseEnterFunc, NULL);
@@ -269,6 +276,7 @@ void PycapBoard::MouseEnter()
 
 void PycapBoard::MouseLeave()
 {
+    GilLocker gil;
     // call python function if it exists
     if (pMouseLeaveFunc)
         PyObject_CallObject(pMouseLeaveFunc, NULL);
@@ -287,6 +295,7 @@ void PycapBoard::MouseLeave()
 
 void PycapBoard::MouseMove(int x, int y)
 {
+    GilLocker gil;
     // Python mouse move hook
     if (pMouseMoveFunc) {
         PyObject* pArgs = PyTuple_New(2);
@@ -312,6 +321,7 @@ void PycapBoard::MouseMove(int x, int y)
 
 void PycapBoard::MouseDrag(int x, int y)
 {
+    GilLocker gil;
     // This gets called instead of mousemove when dragging.
     // For our purposes, they're the same... so do the same thing!
     MouseMove(x, y);
@@ -323,6 +333,7 @@ void PycapBoard::MouseDrag(int x, int y)
 
 void PycapBoard::MouseDown(int x, int y, int theBtnNum, int theClickCount)
 {
+    GilLocker gil;
     // Python mouse down hook
     if (pMouseDownFunc) {
         PyObject* pArgs = PyTuple_New(3);
@@ -350,6 +361,7 @@ void PycapBoard::MouseDown(int x, int y, int theBtnNum, int theClickCount)
 
 void PycapBoard::MouseUp(int x, int y, int theBtnNum, int theClickCount)
 {
+    GilLocker gil;
     // Python mouse up hook
     if (pMouseUpFunc) {
         PyObject* pArgs = PyTuple_New(3);
@@ -377,6 +389,7 @@ void PycapBoard::MouseUp(int x, int y, int theBtnNum, int theClickCount)
 
 void PycapBoard::MouseWheel(int delta)
 {
+    GilLocker gil;
     // Python mouse move hook
     if (pMouseWheelFunc) {
         PyObject* pArgs = PyTuple_New(1);

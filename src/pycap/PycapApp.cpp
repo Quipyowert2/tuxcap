@@ -86,6 +86,7 @@ PycapApp::~PycapApp()
 
     // clean up python
     if (pModule) {
+        GilLocker gil;
         Py_DECREF(pModule); // drop the module
     }
     Py_Finalize(); // shut down the interpreter
@@ -155,6 +156,14 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     PyImport_AppendInittab("Pycap", NULL);
     PyImport_AppendInittab("PycapRes", NULL);
     Py_Initialize();
+
+#if PY_VERSION_HEX < 0x03070000
+    // This call is necessary only in Python 3.6 and older
+    PyEval_InitThreads();
+#endif
+
+    { // begin scope of GIL lock
+        GilLocker gil;
 
     PyRun_SimpleString("import sys");
 
@@ -378,6 +387,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 
     PyRun_SimpleString(("sys.stdout = open( '" + GetAppDataFolder() + "out.txt', 'w' )").c_str());
     PyRun_SimpleString(("sys.stderr = open( '" + GetAppDataFolder() + "err.txt', 'w' )").c_str());
+
+    } // end scope of GIL lock.
 }
 
 //--------------------------------------------------
@@ -404,6 +415,7 @@ void PycapApp::LoadingThreadCompleted()
 
     // check for a failed resource load (not using mLoadingFailed as this terminates the app badly)
     if (mResFailed || !PycapApp::sApp->pDict) {
+        GilLocker gil;
         // Nothing much happens if we return before adding the board... just a black screen
         // Error message widget should be added here
         PyErr_SetString(PyExc_Exception, "The game did not load properly. Sorry, but it's not going to work.");
@@ -439,6 +451,7 @@ void PycapApp::LoadingThreadCompleted()
 
 void PycapApp::GotFocus()
 {
+    GilLocker gil;
     PyObject* pGFFunc = PyDict_GetItemString(PycapApp::sApp->pDict, "gotFocus");
 
     if (pGFFunc && PyCallable_Check(pGFFunc)) {
@@ -452,6 +465,7 @@ void PycapApp::GotFocus()
 
 void PycapApp::LostFocus()
 {
+    GilLocker gil;
     PyObject* pLFFunc = PyDict_GetItemString(PycapApp::sApp->pDict, "lostFocus");
 
     if (pLFFunc && PyCallable_Check(pLFFunc)) {
@@ -465,6 +479,7 @@ void PycapApp::LostFocus()
 
 void PycapApp::SwitchScreenMode(bool wantWindowed, bool is3d)
 {
+    GilLocker gil;
     // Super
     SexyAppBase::SwitchScreenMode(wantWindowed, is3d);
 
@@ -492,6 +507,7 @@ void PycapApp::SwitchScreenMode(bool wantWindowed, bool is3d)
 
 PyObject* PycapApp::pMarkDirty(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // mark the board as dirty
     sApp->mBoard->MarkDirty();
 
@@ -506,6 +522,7 @@ PyObject* PycapApp::pMarkDirty(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetColour(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int r, g, b, a;
     if (!PyArg_ParseTuple(args, "iiii", &r, &g, &b, &a)) {
@@ -539,6 +556,7 @@ PyObject* PycapApp::pSetColour(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetFont(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     if (!PyArg_ParseTuple(args, "i", &i)) {
@@ -584,6 +602,7 @@ PyObject* PycapApp::pSetFont(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetColourize(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int colourize;
     if (!PyArg_ParseTuple(args, "i", &colourize)) {
@@ -617,6 +636,7 @@ PyObject* PycapApp::pSetColourize(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pFillRect(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int x, y, w, h;
     if (!PyArg_ParseTuple(args, "iiii", &x, &y, &w, &h)) {
@@ -650,6 +670,7 @@ PyObject* PycapApp::pFillRect(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawLine(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int sx, sy, ex, ey;
     if (!PyArg_ParseTuple(args, "iiii", &sx, &sy, &ex, &ey)) {
@@ -683,6 +704,7 @@ PyObject* PycapApp::pDrawLine(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawImage(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i, x, y;
     if (!PyArg_ParseTuple(args, "iii", &i, &x, &y)) {
@@ -727,6 +749,7 @@ PyObject* PycapApp::pDrawImage(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawImageF(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     float x, y;
@@ -773,6 +796,7 @@ PyObject* PycapApp::pDrawImageF(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawImageRot(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     float x, y, r;
@@ -819,6 +843,7 @@ PyObject* PycapApp::pDrawImageRot(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawImageRotF(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     float x, y, r;
@@ -864,6 +889,7 @@ PyObject* PycapApp::pDrawImageRotF(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawImageScaled(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     float x, y, w, h;
@@ -919,6 +945,7 @@ PyObject* PycapApp::pDrawImageScaled(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawString(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* string;
     float x, y;
@@ -953,6 +980,7 @@ PyObject* PycapApp::pDrawString(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pShowMouse(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int show;
     if (!PyArg_ParseTuple(args, "i", &show)) {
@@ -980,6 +1008,7 @@ PyObject* PycapApp::pShowMouse(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawmodeNormal(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // check that we're currently drawing
     Graphics* graphics = sApp->mBoard->getGraphics();
     if (!graphics) {
@@ -1004,6 +1033,7 @@ PyObject* PycapApp::pDrawmodeNormal(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawmodeAdd(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // check that we're currently drawing
     Graphics* graphics = sApp->mBoard->getGraphics();
     if (!graphics) {
@@ -1028,6 +1058,7 @@ PyObject* PycapApp::pDrawmodeAdd(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pPlaySound(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     // required
     int index;
@@ -1083,6 +1114,7 @@ PyObject* PycapApp::pPlaySound(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pReadReg(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* key;
     if (!PyArg_ParseTuple(args, "s", &key)) {
@@ -1110,6 +1142,7 @@ PyObject* PycapApp::pReadReg(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pWriteReg(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* key;
     char* string;
@@ -1136,6 +1169,7 @@ PyObject* PycapApp::pWriteReg(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pPlayTune(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     int repeatCount = 0; //do not loop
@@ -1170,6 +1204,7 @@ PyObject* PycapApp::pPlayTune(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pStopTune(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i = -1;
     if (!PyArg_ParseTuple(args, "|i", &i)) {
@@ -1203,6 +1238,7 @@ PyObject* PycapApp::pStopTune(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetVolume(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     float vol;
 
@@ -1226,6 +1262,7 @@ PyObject* PycapApp::pSetVolume(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetTuneVolume(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     float vol;
@@ -1250,6 +1287,7 @@ PyObject* PycapApp::pSetTuneVolume(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetClipRect(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int x, y, w, h;
     if (!PyArg_ParseTuple(args, "iiii", &x, &y, &w, &h)) {
@@ -1282,6 +1320,7 @@ PyObject* PycapApp::pSetClipRect(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pClearClipRect(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // check that we're currently drawing
     Graphics* graphics = sApp->mBoard->getGraphics();
     if (!graphics) {
@@ -1306,6 +1345,7 @@ PyObject* PycapApp::pClearClipRect(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetTranslation(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int x, y;
     if (!PyArg_ParseTuple(args, "ii", &x, &y)) {
@@ -1339,6 +1379,7 @@ PyObject* PycapApp::pSetTranslation(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSetFullscreen(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int fullscreen;
     if (!PyArg_ParseTuple(args, "i", &fullscreen)) {
@@ -1362,6 +1403,7 @@ PyObject* PycapApp::pSetFullscreen(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetFullscreen(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     if (sApp->mIsWindowed) {
         return Py_BuildValue("i", 0);
     } else {
@@ -1375,6 +1417,7 @@ PyObject* PycapApp::pGetFullscreen(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pAllowAllAccess(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* fileName;
     if (!PyArg_ParseTuple(args, "s", &fileName)) {
@@ -1396,6 +1439,7 @@ PyObject* PycapApp::pAllowAllAccess(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetKeyCode(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* key;
     if (!PyArg_ParseTuple(args, "s", &key)) {
@@ -1417,6 +1461,7 @@ PyObject* PycapApp::pGetKeyCode(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetIs3DAccelerated(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     if (sApp->Is3DAccelerated()) {
         return Py_BuildValue("i", 1);
     } else {
@@ -1430,6 +1475,7 @@ PyObject* PycapApp::pGetIs3DAccelerated(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pIsKeyDown(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int keycode;
     if (!PyArg_ParseTuple(args, "i", &keycode)) {
@@ -1450,6 +1496,7 @@ PyObject* PycapApp::pIsKeyDown(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     std::string st = gSexyAppBase->GetUserLanguage();
 
     // convert user language to a python string & return it
@@ -1462,6 +1509,7 @@ PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // get the folder string
     std::string string = gSexyAppBase->GetAppDataFolder();
     if (string.empty()) {
@@ -1481,6 +1529,7 @@ PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetAppResourceFolder(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // get the folder string
     std::string string = gSexyAppBase->GetAppResourceFolder();
 
@@ -1494,6 +1543,7 @@ PyObject* PycapApp::pGetAppResourceFolder(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawImageRotScaled(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int i;
     float x, y, r, scaleX, scaleY;
@@ -1549,6 +1599,7 @@ PyObject* PycapApp::pDrawImageRotScaled(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pSet3DAccelerated(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     int accelerate;
     if (!PyArg_ParseTuple(args, "i", &accelerate)) {
         PyErr_SetString(PyExc_Exception, "set3DAccelerated: failed to parse arguments");
@@ -1572,6 +1623,7 @@ PyObject* PycapApp::pSet3DAccelerated(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawQuad(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int x1, y1, x2, y2, x3, y3, x4, y4;
     if (!PyArg_ParseTuple(args, "iiiiiiii", &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4)) {
@@ -1610,6 +1662,7 @@ PyObject* PycapApp::pDrawQuad(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawTri(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int x1, y1, x2, y2, x3, y3;
     if (!PyArg_ParseTuple(args, "iiiiii", &x1, &y1, &x2, &y2, &x3, &y3)) {
@@ -1646,6 +1699,7 @@ PyObject* PycapApp::pDrawTri(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pDrawQuadTextured(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     float x1, y1, x2, y2, x3, y3, x4, y4;
     int i;

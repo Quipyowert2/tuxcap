@@ -40,6 +40,7 @@ PycapResources* PycapResources::sRes = NULL;
 
 PycapResources::PycapResources()
 {
+    GilLocker gil;
     //--------------------------------
     // Initialize non-resource members
 
@@ -330,6 +331,7 @@ int PycapResources::getTune(int index)
 
 PyObject* PycapResources::pLoadImage(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
@@ -385,6 +387,7 @@ PyObject* PycapResources::pLoadImage(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -429,6 +432,7 @@ PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -473,6 +477,7 @@ PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pUnloadImage(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -524,6 +529,7 @@ PyObject* PycapResources::pUnloadImage(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pLoadFont(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
@@ -578,6 +584,7 @@ PyObject* PycapResources::pLoadFont(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pSysFont(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
 #if 0
     // parse the arguments
     // required
@@ -640,6 +647,7 @@ PyObject* PycapResources::pSysFont(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pStringWidth(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* string;
     int index;
@@ -685,6 +693,7 @@ PyObject* PycapResources::pStringWidth(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pFontAscent(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -730,6 +739,7 @@ PyObject* PycapResources::pFontAscent(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pUnloadFont(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -781,6 +791,7 @@ PyObject* PycapResources::pUnloadFont(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     float scale;
@@ -843,6 +854,7 @@ PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pLoadSound(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
@@ -897,6 +909,7 @@ PyObject* PycapResources::pLoadSound(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pUnloadSound(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -948,6 +961,7 @@ PyObject* PycapResources::pUnloadSound(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pLoadTune(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
@@ -984,6 +998,7 @@ PyObject* PycapResources::pLoadTune(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pUnloadTune(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -1027,6 +1042,7 @@ PyObject* PycapResources::pUnloadTune(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     int x, y;
@@ -1119,6 +1135,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     int x, y;
@@ -1211,6 +1228,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pRefreshPixels(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -1277,6 +1295,7 @@ struct PaletteMashLookup {
 
 PyObject* PycapResources::pMashPalette(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -1359,6 +1378,7 @@ PyObject* PycapResources::pMashPalette(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pMashImage(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -1420,6 +1440,7 @@ PyObject* PycapResources::pMashImage(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pImageGreyScale(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -1496,6 +1517,7 @@ PyObject* PycapResources::pImageGreyScale(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pImageGetLowBound(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -1548,6 +1570,7 @@ PyObject* PycapResources::pImageGetLowBound(PyObject* self, PyObject* args)
 
 PyObject* PycapResources::pImageGetHighBound(PyObject* self, PyObject* args)
 {
+    GilLocker gil;
     // parse the arguments
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
