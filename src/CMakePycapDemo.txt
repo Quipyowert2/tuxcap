@@ -17,8 +17,8 @@ SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
 SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
 
 # These packages are absolutely necessary
-Find_Package ( SDL REQUIRED )
-Find_Package ( SDL_image REQUIRED )
+Find_Package ( SDL2 REQUIRED )
+Find_Package ( SDL2_image REQUIRED )
 Find_Package ( OpenGL REQUIRED )
 
 SET(MY_LINK_LIBS
@@ -27,18 +27,19 @@ SET(MY_LINK_LIBS
     ${OPENGL_LIBRARIES}
 )
 
+SET(Python3_FIND_UNVERSIONED_NAMES NEVER)
+FIND_PACKAGE(Python3 COMPONENTS Development)
+#find_package(PythonLibs 3 REQUIRED)
 
-INCLUDE(FindPythonLibs)
-
-IF (PYTHON_LIBRARIES)
+IF (Python3_LIBRARIES)
     MESSAGE("Python development libraries found, building TuxCap Python bindings and examples")
-    MESSAGE("Python libraries ${PYTHON_LIBRARIES} include path ${PYTHON_INCLUDE_PATH}")
-    SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${PYTHON_LIBRARIES})
+    MESSAGE("Python libraries ${Python3_LIBRARIES} include path ${Python3_INCLUDE_DIRS}")
+    SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${Python3_LIBRARIES})
     SET(MY_DIRS         ${MY_DIRS} pythondemo1 pythondemo2 pythondemo_template)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-ELSE (PYTHON_LIBRARIES)
+    INCLUDE_DIRECTORIES(${Python3_INCLUDE_DIRS})
+ELSE (Python3_LIBRARIES)
     MESSAGE("No Python development libraries found, skipping building of TuxCap Python bindings")
-ENDIF (PYTHON_LIBRARIES)
+ENDIF (Python3_LIBRARIES)
 
 SET(Libraries
     tuxcap
@@ -50,7 +51,7 @@ SET(Libraries
 INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${SDLIMAGE_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${Python3_INCLUDE_DIRS})
 
 #the following block of code is an example of how to build an executable in
 #cmake.  Unmodified, it will add an executable called "MyExe" to the project.
