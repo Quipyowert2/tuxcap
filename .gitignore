@@ -1,8 +1,5 @@
-.dep.inc
-HOWTO-cleanup-build
-LOG-make*
-TODO-tuxcap-merge.txt
+#build directories
+build*/
 
-# Netbeans stuff
-tuxcap-Makefile.mk
-/nbproject/
+#Python bytecode
+*.pyc
