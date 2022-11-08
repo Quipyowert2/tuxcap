@@ -42,12 +42,14 @@ SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build libtuxcap also as static library.")
 # These packages are absolutely necessary
 Find_Package ( SDL2 REQUIRED )
 Find_Package ( SDL2_image REQUIRED )
+Find_Package ( SDL2_mixer REQUIRED )
 Find_Package ( OpenGL REQUIRED )
 Find_Package ( PNG REQUIRED )
 
 SET(MY_LINK_LIBS
     ${SDL_LIBRARY}
     ${SDLIMAGE_LIBRARY}
+    SDL2_mixer::SDL2_mixer
     ${OPENGL_LIBRARIES}
     ${PNG_LIBRARIES}
 )
@@ -96,13 +98,13 @@ IF(NOT SOUND_SYSTEM)
     SET(SOUND_SYSTEM "UNDEFINED_SOUND_SYSTEM")
 ENDIF(NOT SOUND_SYSTEM)
 IF(${SOUND_SYSTEM} STREQUAL "SDL")
-    Find_Package ( SDL_mixer REQUIRED )
-    IF(SDLMIXER_FOUND)
+    Find_Package ( SDL2_mixer REQUIRED )
+    IF(SDL2_mixer_FOUND)
         MESSAGE("libSDL_mixer found. ${SDLMIXER_INCLUDE_DIR} ${SDLMIXER_LIBRARY}")
         INCLUDE_DIRECTORIES(${SDLMIXER_INCLUDE_DIR})
-    ELSE(SDLMIXER_FOUND)
+    ELSE(SDL2_mixer_FOUND)
         MESSAGE(FATAL_ERROR "libSDL_mixer requested but not found.")
-    ENDIF(SDLMIXER_FOUND)
+    ENDIF(SDL2_mixer_FOUND)
     SET(MY_LINK_LIBS
         ${MY_LINK_LIBS}
         ${SDLMIXER_LIBRARY}
@@ -346,7 +348,7 @@ SET (PYCAP_HEADERS
 	../pycap/PycapResources.h
 )
 
-IF(SDLMIXER_FOUND)
+IF(SDL2_mixer_FOUND)
 	SET(MY_SOURCES ${MY_SOURCES}
             SDLMixerMusicInterface.cpp
             SDLMixerSoundManager.cpp
@@ -358,7 +360,7 @@ IF(SDLMIXER_FOUND)
             SDLMixerSoundInstance.h
             SDLMixerSoundManager.h
         )
-ENDIF(SDLMIXER_FOUND)
+ENDIF(SDL2_mixer_FOUND)
 
 IF(AUDIERELIB_FOUND)
 	SET(MY_SOURCES ${MY_SOURCES}

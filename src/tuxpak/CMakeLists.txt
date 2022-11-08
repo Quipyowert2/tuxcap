@@ -1,3 +1,4 @@
+PROJECT(tuxpak)
 SET(MY_SOURCES  tuxpak.cpp)
 
 SET(CurrentExe "tuxpak")

@@ -34,10 +34,16 @@ SET(MY_SOURCES main.cpp)
 #    SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
 #ENDIF(APPLE)
 
-SET(CurrentExe "Pythondemo2")
+SET(CurrentExe "pythondemo2")
 ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
+INCLUDE_DIRECTORIES("/usr/include/SDL2", "/usr/include/python3.10")
+SET_TARGET_PROPERTIES(${CurrentExe} PROPERTIES
+       RUNTIME_OUTPUT_DIRECTORY "../../bin"
+)
+
 
 #the following rule is to copy game.py into the build directory
 ADD_CUSTOM_COMMAND(
