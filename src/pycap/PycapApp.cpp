@@ -226,7 +226,13 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     PyImport_AppendInittab("PycapRes", &PycapResources::initModule);
     Py_Initialize();
 
+#if PY_VERSION_HEX < 0x03070000
+    // This call is necessary only in Python 3.6 and older
     PyEval_InitThreads();
+#endif
+
+    { // begin scope of GIL lock.
+    GilLocker gil;
 
     PyRun_SimpleString("import sys");
 
@@ -391,9 +397,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 
     PyRun_SimpleString(("sys.stdout = open( '" + GetAppDataFolder() + "out.txt', 'w' )").c_str());
     PyRun_SimpleString(("sys.stderr = open( '" + GetAppDataFolder() + "err.txt', 'w' )").c_str());
-
-    PyGILState_Release(PyGILState_LOCKED);
-    assert(!PyGILState_Check());
+    } // end scope of GIL lock
 }
 
 //--------------------------------------------------
@@ -1749,4 +1753,13 @@ PyObject* PycapApp::pDrawQuadTextured(PyObject* self, PyObject* args)
     // return, 'cos we're done
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+
+// RAII wrapper for global interpreter lock
+GilLocker::GilLocker() {
+   state = PyGILState_Ensure();
+}
+GilLocker::~GilLocker() {
+    PyGILState_Release(state);
 }

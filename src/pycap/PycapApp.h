@@ -133,12 +133,8 @@ private:
 // RAII wrapper for global interpreter lock
 class GilLocker {
     public:
-GilLocker() {
-   state = PyGILState_Ensure();
-}
-~GilLocker() {
-    PyGILState_Release(state);
-}
+GilLocker();
+~GilLocker();
 PyGILState_STATE state;
 };
 
