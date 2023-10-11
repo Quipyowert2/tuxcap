@@ -157,6 +157,8 @@ const std::string Sexy::GetKeyNameFromCode(const KeyCode& theKeyCode)
 
 KeyCode Sexy::GetKeyCodeFromSDLKey(SDLKey key)
 {
+    SDL_Keymod mods = SDL_GetModState();
+    bool capital = ((mods & KMOD_SHIFT) ^ (mods & KMOD_CAPS));
     switch (key)
     {
     case SDLK_UNKNOWN:     return KEYCODE_UNKNOWN;
@@ -215,32 +217,32 @@ KeyCode Sexy::GetKeyCodeFromSDLKey(SDLKey key)
     case SDLK_7:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 7);
     case SDLK_8:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 8);
     case SDLK_9:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 9);
-    case SDLK_a:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 17);
-    case SDLK_b:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 18);
-    case SDLK_c:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 19);
-    case SDLK_d:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 20);
-    case SDLK_e:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 21);
-    case SDLK_f:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 22);
-    case SDLK_g:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 23);
-    case SDLK_h:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 24);
-    case SDLK_i:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 25);
-    case SDLK_j:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 26);
-    case SDLK_k:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 27);
-    case SDLK_l:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 28);
-    case SDLK_m:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 29);
-    case SDLK_n:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 30);
-    case SDLK_o:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 31);
-    case SDLK_p:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 32);
-    case SDLK_q:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 33);
-    case SDLK_r:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 34);
-    case SDLK_s:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 35);
-    case SDLK_t:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 36);
-    case SDLK_u:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 37);
-    case SDLK_v:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 38);
-    case SDLK_w:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 39);
-    case SDLK_x:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 40);
-    case SDLK_y:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 41);
-    case SDLK_z:           return (KeyCode)(KEYCODE_ASCIIBEGIN + 42);
+    case SDLK_a:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 17 : 49));
+    case SDLK_b:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 18 : 50));
+    case SDLK_c:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 19 : 51));
+    case SDLK_d:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 20 : 52));
+    case SDLK_e:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 21 : 53));
+    case SDLK_f:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 22 : 54));
+    case SDLK_g:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 23 : 55));
+    case SDLK_h:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 24 : 56));
+    case SDLK_i:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 25 : 57));
+    case SDLK_j:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 26 : 58));
+    case SDLK_k:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 27 : 59));
+    case SDLK_l:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 28 : 60));
+    case SDLK_m:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 29 : 61));
+    case SDLK_n:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 30 : 62));
+    case SDLK_o:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 31 : 63));
+    case SDLK_p:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 32 : 64));
+    case SDLK_q:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 33 : 65));
+    case SDLK_r:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 34 : 66));
+    case SDLK_s:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 35 : 67));
+    case SDLK_t:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 36 : 68));
+    case SDLK_u:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 37 : 69));
+    case SDLK_v:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 38 : 70));
+    case SDLK_w:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 39 : 71));
+    case SDLK_x:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 40 : 72));
+    case SDLK_y:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 41 : 73));
+    case SDLK_z:           return (KeyCode)(KEYCODE_ASCIIBEGIN + (capital ? 42 : 74));
     //case SDLK_ASCIIBEGIN:  return KEYCODE_ASCIIBEGIN;
     //case SDLK_ASCIIEND:    return KEYCODE_ASCIIEND;
     //case SDLK_LWIN:        return KEYCODE_LWIN;
