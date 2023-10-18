@@ -401,6 +401,13 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     } // end scope of GIL lock.
 }
 
+void PycapApp::Start()
+{
+    Py_BEGIN_ALLOW_THREADS
+    SexyAppBase::Start();
+    Py_END_ALLOW_THREADS
+}
+
 //--------------------------------------------------
 // LoadingThreadProc
 //--------------------------------------------------
