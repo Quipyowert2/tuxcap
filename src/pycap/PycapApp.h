@@ -41,6 +41,7 @@ public:
 
     // Standard SexyApp functions
     virtual void Init(int argc, char*argv[], bool bundled=false);
+    virtual void Start();
     virtual void LoadingThreadProc();
     virtual void LoadingThreadCompleted();
     virtual void GotFocus();
