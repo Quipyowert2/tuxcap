@@ -31,6 +31,24 @@ Logger::Logger()
 
     // Create a few essential logging facilities
     // TODO
+#ifdef DEBUG
+    LoggerFacil::add("hgeparticle", 1);
+    LoggerFacil::add("hgeparticle", 1);
+    LoggerFacil::add("board", 1);
+    LoggerFacil::add("gameapp", 1);
+    LoggerFacil::add("d3dinterface", 1);
+    LoggerFacil::add("dxttexture", 1);
+    LoggerFacil::add("graphics", 1);
+    LoggerFacil::add("image", 1);
+    LoggerFacil::add("image", 1);
+    LoggerFacil::add("fontdata", 1);
+    LoggerFacil::add("image", 1);
+    LoggerFacil::add("image", 1);
+    LoggerFacil::add("image", 1);
+    LoggerFacil::add("pakinterface", 1);
+    LoggerFacil::add("resman", 1);
+    LoggerFacil::add("sexyappbase", 1);
+#endif
 }
 
 bool Logger::set_log_level(const string & txt)
