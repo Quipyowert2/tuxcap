@@ -371,7 +371,8 @@ protected:
     int                     mViewporty;
     int                     mViewportWidth;
     int                     mViewportHeight;
-    float                   mViewportToGameRatio;
+    float                   mViewportToGameRatioX;
+    float                   mViewportToGameRatioY;
     bool                    mViewportIsRotated;
 
     // Set from the commandline

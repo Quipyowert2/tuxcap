@@ -122,9 +122,16 @@ void D3DInterface::UpdateViewport()
         vx = 0;
         vy = 0;
     }
-    gSexyAppBase->mViewportToGameRatio = (float)gw / vw;
+    if (do_rotate) {
+        gSexyAppBase->mViewportToGameRatioX = (float)gh / vh;
+        gSexyAppBase->mViewportToGameRatioY = (float)gw / gw;
+    }
+    else {
+        gSexyAppBase->mViewportToGameRatioX = (float)gw / vw;
+        gSexyAppBase->mViewportToGameRatioY = (float)gh / vh;
+    }
     gSexyAppBase->mViewportIsRotated = do_rotate;
-    LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport to game ratio: %f", gSexyAppBase->mViewportToGameRatio));
+    LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport to game ratio: x=%f,y=%f", gSexyAppBase->mViewportToGameRatioX, gSexyAppBase->mViewportToGameRatioY));
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

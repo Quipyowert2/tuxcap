@@ -403,7 +403,8 @@ SexyAppBase::SexyAppBase()
     mViewporty = 0;
     mViewportWidth = mWidth;
     mViewportHeight = mHeight;
-    mViewportToGameRatio  = 1.0f;
+    mViewportToGameRatioX  = 1.0f;
+    mViewportToGameRatioY = 1.0f;
     mViewportIsRotated = false;
 
     mVideoModeWidth = -1;       // We don't know yet
@@ -1339,8 +1340,8 @@ bool SexyAppBase::UpdateApp()
 
 int SexyAppBase::ViewportToGameX(int x, int y)
 {
-    x = (x - mViewportx) * mViewportToGameRatio;
-    y = (y - mViewporty) * mViewportToGameRatio;
+    x = (x - mViewportx) * mViewportToGameRatioX;
+    y = (y - mViewporty) * mViewportToGameRatioY;
     if (mViewportIsRotated)
         return y;
     return x;
@@ -1348,8 +1349,8 @@ int SexyAppBase::ViewportToGameX(int x, int y)
 
 int SexyAppBase::ViewportToGameY(int x, int y)
 {
-    x = (x - mViewportx) * mViewportToGameRatio;
-    y = (y - mViewporty) * mViewportToGameRatio;
+    x = (x - mViewportx) * mViewportToGameRatioX;
+    y = (y - mViewporty) * mViewportToGameRatioY;
     if (mViewportIsRotated)
         return mHeight - x;
     return y;
@@ -2722,13 +2723,16 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
     LOG(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDesktopDisplayMode mode w=%d, h=%d", mode.w, mode.h));
     mVideoModeWidth = mode.w;
     mVideoModeHeight = mode.h;
-
-    if (mMainWindow) {
+    if (mMainWindow && SDL_GetWindowFlags(mMainWindow) & SDL_WINDOW_OPENGL) {
         SDL_SetWindowFullscreen(mMainWindow, SDL_WINDOW_FULLSCREEN);
         SDL_SetWindowBordered(mMainWindow, SDL_FALSE);
         SDL_SetWindowSize(mMainWindow, mVideoModeWidth, mVideoModeHeight);
     }
     else {
+        if (mMainWindow) {
+            // Software rendered window.
+            SDL_DestroyWindow(mMainWindow);
+        }
         mMainWindow = SDL_CreateWindow(mTitle.c_str(),
                                     0, 0, mVideoModeWidth, mVideoModeHeight,
                                     SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
@@ -2737,10 +2741,12 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
             mShutdown = true;
         }
 
-        mMainGLContext = SDL_GL_CreateContext(mMainWindow);
-        if (mMainGLContext == NULL) {
-            fprintf(stderr, "Can't create OpenGL ES context: %s\n", SDL_GetError());
-            mShutdown = true;
+        if (!mMainGLContext) {
+            mMainGLContext = SDL_GL_CreateContext(mMainWindow);
+            if (mMainGLContext == NULL) {
+                fprintf(stderr, "Can't create OpenGL ES context: %s\n", SDL_GetError());
+                mShutdown = true;
+            }
         }
 
         int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
@@ -2761,12 +2767,16 @@ void SexyAppBase::MakeWindow_3D_Windowed()
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
 
-    if (mMainWindow) {
+    if (mMainWindow && SDL_GetWindowFlags(mMainWindow) & SDL_WINDOW_OPENGL) {
         SDL_SetWindowFullscreen(mMainWindow, 0);
         SDL_SetWindowBordered(mMainWindow, SDL_TRUE);
         SDL_SetWindowSize(mMainWindow, mVideoModeWidth, mVideoModeHeight);
     }
-    else {
+    else { 
+        if (mMainWindow) {
+            // Software rendered window.
+            SDL_DestroyWindow(mMainWindow);
+        }
         mMainWindow = SDL_CreateWindow(mTitle.c_str(),
                                     0, 0, mVideoModeWidth, mVideoModeHeight,
                                     SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -2776,11 +2786,13 @@ void SexyAppBase::MakeWindow_3D_Windowed()
             return;
         }
 
-        mMainGLContext = SDL_GL_CreateContext(mMainWindow);
-        if (mMainGLContext == NULL) {
-            fprintf(stderr, "Can't create OpenGL context: %s\n", SDL_GetError());
-            mShutdown = true;
-            return;
+        if (!mMainGLContext) {
+            mMainGLContext = SDL_GL_CreateContext(mMainWindow);
+            if (mMainGLContext == NULL) {
+                fprintf(stderr, "Can't create OpenGL context: %s\n", SDL_GetError());
+                mShutdown = true;
+                return;
+            }
         }
 
         int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
@@ -2802,9 +2814,51 @@ void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, int bpp)
     // Software renderer, not using OpenGL
 #if SDL_VERSION_ATLEAST(2,0,0)
     // For now just let's always make a "windowed" window (not fullscreen)
-    mVideoModeWidth = mWidth;
-    mVideoModeHeight = mHeight;
-    mMainWindow = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, SDL_WINDOW_SHOWN);
+    if (isWindowed) {
+        mVideoModeWidth = mWidth;
+        mVideoModeHeight = mHeight;
+        gSexyAppBase->mViewportToGameRatioX = 1.f;
+        gSexyAppBase->mViewportToGameRatioY = 1.f;
+    }
+    else {
+        SDL_DisplayMode mode;
+        SDL_GetDesktopDisplayMode(0, &mode);
+        mVideoModeWidth = mode.w;
+        mVideoModeHeight = mode.h;
+        gSexyAppBase->mViewportToGameRatioX = (float)mWidth / mVideoModeWidth;
+        gSexyAppBase->mViewportToGameRatioY = (float)mHeight / mVideoModeHeight;
+    }
+    
+    if (mMainWindow && SDL_GetWindowFlags(mMainWindow) & SDL_WINDOW_OPENGL) {
+        // OpenGL window exists.
+        SDL_DestroyWindow(mMainWindow);
+        mMainWindow = NULL;
+    }
+    else if (mMainWindow) {
+        // Software rendered window
+        if (isWindowed) {
+            SDL_SetWindowFullscreen(mMainWindow, SDL_FALSE);
+            SDL_SetWindowSize(mMainWindow, mWidth, mHeight);
+            SDL_SetWindowBordered(mMainWindow, SDL_TRUE);
+        }
+        else {
+            SDL_SetWindowFullscreen(mMainWindow, SDL_WINDOW_FULLSCREEN);
+            SDL_SetWindowBordered(mMainWindow, SDL_FALSE);
+        }
+    }
+    if (!mMainWindow) {
+        Uint32 flags = SDL_WINDOW_SHOWN;
+        if (!isWindowed) {
+            flags |= SDL_WINDOW_FULLSCREEN;
+            flags |= SDL_WINDOW_BORDERLESS;
+        }
+        mMainWindow = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, flags);
+        if (mMainWindow == 0) {
+            fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
+            mShutdown = true;
+            return;
+        }
+    }
     mScreenSurface = SDL_GetWindowSurface(mMainWindow);
 #else
     // ???? Is this always "windowed"?
@@ -2855,6 +2909,8 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
     Bmask = pf->Bmask;
 #endif
 
+    // Avoid attempting to free the old window surface after MakeWindow_SoftwareRendered changes it.
+    mDDInterface->Cleanup();
     if (is3D) {
         // Set OpenGL(ES) parameters same as SDL
         SDL_GL_SetAttribute(SDL_GL_RED_SIZE, count_bits(Rmask));
@@ -2878,9 +2934,9 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
         // We need a new surface with game dimension so that DDImage and friends can
         // draw images.
         // Use all but the width and height from the ScreenSurface
-        if (mScreenSurface) {
+        //if (mScreenSurface) {
             mGameSurface = SDL_CreateRGBSurface(
-                    mScreenSurface->flags,
+                    0,//mScreenSurface->flags,
                     mWidth,
                     mHeight,
                     bpp,
@@ -2889,12 +2945,13 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
                     Bmask,
                     Amask
                     );
-        }
+        //}
     }
     else {
         MakeWindow_SoftwareRendered(isWindowed, bpp);
     }
 
+    Set3DAcclerated(is3D, false);
     (void) InitDDInterface();
 
     ReInitImages();
