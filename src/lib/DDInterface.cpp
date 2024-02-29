@@ -584,7 +584,44 @@ bool DDInterface::Redraw(Rect* theClipRect)
         SDL_GL_SwapWindow(gSexyAppBase->GetMainWindow());
     else {
 #if SDL_VERSION_ATLEAST(2,0,0)
+        int screenW, screenH;
+        SDL_GetWindowSize(gSexyAppBase->GetMainWindow(), &screenW, &screenH);
+        if (!gSexyAppBase->mIsWindowed) {
+            // fullscreen, so calculate rectangles for letterboxing.
+            Rect from = Rect(0, 0, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
+            float scaleX = ((float)screenH)/gSexyAppBase->mHeight;
+            float scaleY = ((float)screenW)/gSexyAppBase->mWidth;
+            int scaledW = gSexyAppBase->mWidth * scaleX;
+            int scaledH = gSexyAppBase->mHeight * scaleY;
+            Rect to;
+            if (scaledH > screenH) {
+                // blank space to the side
+                to = Rect((screenW - scaledW)/2, 0, scaledW, screenH);
+            }
+            else {
+                // blank space above and below
+                to = Rect(0, (screenH - scaledH)/2, screenW, scaledH);
+            }
+            SDL_Rect aSrcRect = { from.mX, from.mY, from.mWidth, from.mHeight };
+            SDL_Rect aDestRect = { to.mX, to.mY, to.mWidth, to.mHeight };
+            static SDL_Surface *blit = NULL;
+            if (blit == NULL || blit->w != screenW || blit->h != screenH) {
+                SDL_FreeSurface(blit);
+                blit = SDL_CreateRGBSurface(0, screenW, screenH, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
+            }
+            SDL_FillRect(blit, &aSrcRect, SDL_MapRGBA(blit->format, 0, 0, 0, 255));
+            SDL_BlitScaled(mScreenImage->mSurface, &aSrcRect, blit, &aDestRect);
+            aSrcRect.w = screenW;
+            aSrcRect.h = screenH;
+            SDL_BlitSurface(blit, &aSrcRect, mScreenImage->mSurface, &aSrcRect);
+        }
         SDL_UpdateWindowSurface(gSexyAppBase->GetMainWindow());
+        SDL_Surface* aSurface = SDL_GetWindowSurface(gSexyAppBase->GetMainWindow());
+        if (aSurface != mScreenImage->mSurface) {
+            gSexyAppBase->mScreenSurface = aSurface;
+            gSexyAppBase->mGameSurface = aSurface;
+            mScreenImage->SetSurface(aSurface);
+        }
 #else
         SDL_Flip(mScreenImage->mSurface);
 #endif

@@ -391,6 +391,8 @@ private:
     SDL_Window*             mMainWindow;
     SDL_GLContext           mMainGLContext;
 
+friend class DDInterface;
+
 public:
     virtual void            Init();
     SexyAppBase();
